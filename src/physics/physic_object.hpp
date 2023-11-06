@@ -11,15 +11,16 @@ struct PhysicObject
     Vec2 position      = {0.0f, 0.0f};
     Vec2 last_position = {0.0f, 0.0f};
     Vec2 acceleration  = {0.0f, 0.0f};
-//    sf::Color color;
+    Color color;
 
     PhysicObject() = default;
 
     explicit
-    PhysicObject(int id_, Vec2 position_)
+    PhysicObject(int id_, Vec2 position_, Color color_)
         : id(id_)
         , position(position_)
         , last_position(position_)
+        , color(color_)
     {}
 
     void setPosition(Vec2 pos)

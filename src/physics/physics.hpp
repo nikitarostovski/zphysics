@@ -110,9 +110,9 @@ struct PhysicSolver
     }
 
     // Add a new object to the solver
-    uint64_t createObject(Vec2 pos)
+    uint64_t createObject(Vec2 pos, Color color)
     {
-        return objects.emplace_back(objects.size(), pos);
+        return objects.emplace_back(objects.size(), pos, color);
     }
 
     void update(float dt)

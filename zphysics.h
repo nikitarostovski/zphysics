@@ -6,35 +6,34 @@
 #include "core/object/ref_counted.h"
 #include "src/physics/physics.hpp"
 #include "src/thread_pool/thread_pool.hpp"
-
-#include "scene/main/canvas_item.h"
-
 #include "scene/2d/mesh_instance_2d.h"
 
 class ZPhysics : public RefCounted {
 	GDCLASS(ZPhysics, RefCounted);
 
-    const IVec2 world_size{300, 300};
+    IVec2 world_size;
+    
     tp::ThreadPool thread_pool{10};
     PhysicSolver solver;
     
     MeshInstance2D *renderer;
     
     Vector<Vector2> vertices;
+    Vector<Color> colors;
     
 protected:
+    static ZPhysics* singleton;
 	static void _bind_methods();
 
 public:
-    Vec2 getPosition(int _id);
+    ZPhysics();
+    static ZPhysics* get_singleton();
     
-    int addObject(Vec2 pos);
-    
-    void step(float dt, CanvasItem *node);
-    
+    Vec2 get_position(int _id);
+    int add_object(Vec2 pos, Color color);
+    void object_accelerate(int _id, Vec2 ac);
+    void step(float dt);
     void bind_renderer(MeshInstance2D *mi);
-    
-	ZPhysics();
 };
 
 #endif // ZPHYSICS_H
