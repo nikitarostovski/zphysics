@@ -9,7 +9,7 @@ void initialize_zphysics_module(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 			return;
 	}
-	ClassDB::register_class<ZPhysics>();
+    ClassDB::register_class<ZPhysics>();
 }
 
 void uninitialize_zphysics_module(ModuleInitializationLevel p_level) {
