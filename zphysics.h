@@ -30,7 +30,7 @@ public:
     static ZPhysics* get_singleton();
     
     Vec2 get_position(int _id);
-    int add_object(Vec2 pos, Color color);
+    int add_object(Vec2 pos, Color color, bool is_static, float radius, float damping_ratio);
     void object_accelerate(int _id, Vec2 ac);
     void step(float dt);
     void bind_renderer(MeshInstance2D *mi);

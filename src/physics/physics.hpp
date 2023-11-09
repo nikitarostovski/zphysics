@@ -1,15 +1,13 @@
 #pragma once
+#include <cmath>
 #include "collision_grid.hpp"
 #include "physic_object.hpp"
 #include "../common/utils.hpp"
 #include "../common/index_vector.hpp"
+#include "../common/vec.hpp"
 #include "../thread_pool/thread_pool.hpp"
 
-#include "../common/vec.hpp"
-#include <cmath>
-
-struct PhysicSolver
-{
+struct PhysicSolver {
     CIVector<PhysicObject> objects;
     CollisionGrid          grid;
     Vec2                   world_size;
@@ -29,8 +27,7 @@ struct PhysicSolver
     }
 
     // Checks if two atoms are colliding and if so create a new contact
-    void solveContact(uint32_t atom_1_idx, uint32_t atom_2_idx)
-    {
+    void solveContact(uint32_t atom_1_idx, uint32_t atom_2_idx) {
         constexpr float response_coef = 1.0f;
         constexpr float eps           = 0.0001f;
         PhysicObject& obj_1 = objects.data[atom_1_idx];
@@ -47,15 +44,13 @@ struct PhysicSolver
         }
     }
 
-    void checkAtomCellCollisions(uint32_t atom_idx, const CollisionCell& c)
-    {
+    void checkAtomCellCollisions(uint32_t atom_idx, const CollisionCell& c) {
         for (uint32_t i{0}; i < c.objects_count; ++i) {
             solveContact(atom_idx, c.objects[i]);
         }
     }
 
-    void processCell(const CollisionCell& c, uint32_t index)
-    {
+    void processCell(const CollisionCell& c, uint32_t index) {
         for (uint32_t i{0}; i < c.objects_count; ++i) {
             const uint32_t atom_idx = c.objects[i];
             checkAtomCellCollisions(atom_idx, grid.data[index - 1]);
@@ -70,22 +65,20 @@ struct PhysicSolver
         }
     }
 
-    void solveCollisionThreaded(uint32_t i, uint32_t slice_size)
-    {
+    void solveCollisionThreaded(uint32_t i, uint32_t slice_size) {
         const uint32_t start = i * slice_size;
-        const uint32_t end   = (i + 1) * slice_size;
+        const uint32_t end = (i + 1) * slice_size;
         for (uint32_t idx{start}; idx < end; ++idx) {
             processCell(grid.data[idx], idx);
         }
     }
 
     // Find colliding atoms
-    void solveCollisions()
-    {
+    void solveCollisions() {
         // Multi-thread grid
         const uint32_t thread_count = thread_pool.m_thread_count;
-        const uint32_t slice_count  = thread_count * 2;
-        const uint32_t slice_size   = (grid.width / slice_count) * grid.height;
+        const uint32_t slice_count = thread_count * 2;
+        const uint32_t slice_size = (grid.width / slice_count) * grid.height;
         // Find collisions in two passes to avoid data races
         // First collision pass
         for (uint32_t i{0}; i < thread_count; ++i) {
@@ -104,19 +97,16 @@ struct PhysicSolver
     }
 
     // Add a new object to the solver
-    uint64_t addObject(const PhysicObject& object)
-    {
+    uint64_t addObject(const PhysicObject& object) {
         return objects.push_back(object);
     }
 
     // Add a new object to the solver
-    uint64_t createObject(Vec2 pos, Color color)
-    {
-        return objects.emplace_back(objects.size(), pos, color);
+    uint64_t createObject(Vec2 pos, Color color, bool is_static, float radius, float damping_ratio) {
+        return objects.emplace_back(objects.size(), pos, color, is_static, radius, damping_ratio);
     }
 
-    void update(float dt)
-    {
+    void update(float dt) {
         // Perform the sub steps
         const float sub_dt = dt / static_cast<float>(sub_steps);
         for (uint32_t i(sub_steps); i--;) {
@@ -126,8 +116,7 @@ struct PhysicSolver
         }
     }
 
-    void addObjectsToGrid()
-    {
+    void addObjectsToGrid() {
         grid.clear();
         // Safety border to avoid adding object outside the grid
         uint32_t i{0};
@@ -140,8 +129,7 @@ struct PhysicSolver
         }
     }
 
-    void updateObjects_multi(float dt)
-    {
+    void updateObjects_multi(float dt) {
         thread_pool.dispatch(to<uint32_t>(objects.size()), [&](uint32_t start, uint32_t end){
             for (uint32_t i{start}; i < end; ++i) {
                 PhysicObject& obj = objects.data[i];

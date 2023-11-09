@@ -11,8 +11,8 @@ Vec2 ZPhysics::get_position(int _id) {
     return solver.objects.data[_id].position;
 }
 
-int ZPhysics::add_object(Vec2 pos, Color color) {
-    int id = solver.createObject(pos, color);
+int ZPhysics::add_object(Vec2 pos, Color color, bool is_static, float radius, float damping_ratio) {
+    int id = solver.createObject(pos, color, is_static, radius, damping_ratio);
     return id;
 }
 
@@ -53,7 +53,7 @@ void ZPhysics::bind_renderer(MeshInstance2D *mi) {
 
 void ZPhysics::_bind_methods() {
     ClassDB::bind_method(D_METHOD("step", "dt"), &ZPhysics::step);
-    ClassDB::bind_method(D_METHOD("addObject", "pos", "color"), &ZPhysics::add_object);
+    ClassDB::bind_method(D_METHOD("addObject", "pos", "color", "isStatic", "radius", "dampingRatio"), &ZPhysics::add_object);
     ClassDB::bind_method(D_METHOD("getPosition", "id"), &ZPhysics::get_position);
     ClassDB::bind_method(D_METHOD("accelerateObject", "id", "acc"), &ZPhysics::object_accelerate);
     ClassDB::bind_method(D_METHOD("bindRenderer", "mi"), &ZPhysics::bind_renderer);
